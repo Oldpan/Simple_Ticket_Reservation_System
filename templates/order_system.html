@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+
+<head>
+    <title>订票页面</title>
+        <!-- meta -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- css -->
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <!-- js -->
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="jumbotron">
+        <h1 style="text-align: center">车票预订系统</h1>
+        <p style="text-align: center">这是一个简易的车票预订系统，制作者：OLDPAN</p>
+    </div>
+
+    <h3 style="text-align: center">当前车票信息</h3>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>车票编号</th>
+            <th>车票名称</th>
+            <th>开车时间</th>
+            <th>剩余座位</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ticket in tickets %}
+        <tr>
+            <td>{{ ticket.num }}</td>
+            <td>{{ ticket.name }}</td>
+            <td>{{ ticket.time|date:"Y-m-d H:i" }}</td>
+            <td>{{ ticket.seats }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 style="text-align: center">输入购票信息开始购票</h2>
+
+    <form action="{% url 'order' %}" method="post" >
+          {% csrf_token %}
+        <div class="form-group">
+            <div class="col-xs-2">
+                <label for="ticket_num">车票编号</label>
+                {{ ticket_form.ticket_num }}
+{#                <input class="form-control">#}
+                {% for error in ticket_form.ticket_num.errors %}
+                     <h6 style="color: red"><strong>{{ error|escape }}</strong></h6>
+                {% endfor %}
+            </div>
+{#        已经有车票编号可供查询预订，所以车票时间有些累赘，故删除#}
+{#            <div class="col-xs-2">#}
+{#                <label for="ticket_time">乘车时间</label>#}
+{#                {{ ticket_form.ticket_time }}#}
+{#                <input class="form-control">#}
+{#                {% for error in ticket_form.ticket_time.errors %}#}
+{#                     <h6 style="color: red"><strong>{{ error|escape }}</strong></h6>#}
+{#                {% endfor %}#}
+{#            </div>#}
+            <div class="col-xs-2">
+                <label for="name">用户姓名</label>
+                {{ ticket_form.name }}
+{#                <input class="form-control">#}
+                {% for error in ticket_form.name.errors %}
+                     <h6 style="color: red"><strong>{{ error|escape }}</strong></h6>
+                {% endfor %}
+            </div>
+            <div class="col-xs-2">
+                <label for="phone_number">手机号</label>
+                {{ ticket_form.phone_number }}
+{#                <input class="form-control" >#}
+                {% for error in ticket_form.phone_number.errors %}
+                     <h6 style="color: red"><strong>{{ error|escape }}</strong></h6>
+                {% endfor %}
+            </div>
+            <div class="col-xs-2">
+                <br>
+                <button type="submit" name="order" class="btn btn-default">购买</button>
+                <h6 style="color: red"><strong>{{ order_message }}</strong></h6>
+            </div>
+        </div>
+    </form>
+
+    <br><br><br><br>
+    <h2 style="text-align: center">预订信息查询</h2>
+    <h5 style="text-align: center">查询结果在下方列表栏中</h5>
+
+    <form action="{% url 'query' %}" method="post" >
+          {% csrf_token %}
+        <div class="form-group">
+            <div class="col-xs-2">
+                <label for="name">姓名</label>
+                 {{ person_form.name }}
+                 {% for error in person_form.name.errors %}
+                     <h6 style="color: red"><strong>{{ error|escape }}</strong></h6>
+                 {% endfor %}
+{#                 {{ person_form.name.errors|escape  }}#}
+            </div>
+            <div class="col-xs-2">
+                <label for="phone_number">电话号码</label>
+                {{ person_form.phone_number }}
+                {% for error in person_form.phone_number.errors %}
+                    <h6 style="color: red"><strong>{{ error|escape }}</strong></h6>
+                {% endfor %}
+{#                 {{ person_form.phone_number.errors|escape }}#}
+            </div>
+            <div class="col-xs-2">
+                <br>
+                <button type="submit" name="submit" value="find" class="btn btn-default">查询</button>
+            </div>
+            <div class="col-xs-2">
+                <br>
+                <h6 style="color: red">{{ query_message }}{{ cansel_message }}</h6>
+            </div>
+        </div>
+    </form>
+
+    <br><br><br><br>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>乘客姓名</th>
+            <th>电话号码</th>
+            <th>车次</th>
+            <th>开车时间</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if show %}
+        {% for person in persons %}
+        <tr>
+            <td>{{ person.name }}</td>
+            <td>{{ person.phone_number }}</td>
+            <td>{{ person.ticket_name }}</td>
+            <td>{{ person.ticket_time|date:"Y-m-d H:i" }}</td>
+        </tr>
+        {% empty %}
+         <tr>
+            <td>暂无乘车人</td>
+            <td>None</td>
+            <td>None</td>
+            <td>None</td>
+         </tr>
+        {% endfor %}
+        {% endif %}
+        </tbody>
+    </table>
+
+    {% if show %}
+    <form action="{% url 'query'  %}" method="post" >
+          {% csrf_token %}
+        <div class="form-group">
+            <div class="col-xs-3">
+                <h5>您可以取消此订单，确定要取消吗？</h5>
+            </div>
+            <div class="col-xs-1">
+                <button type="submit" name="submit" value="yes" class="btn btn-default">确定取消</button>
+            </div>
+            <div class="col-xs-1">
+                <button type="submit" name="submit" value="no" class="btn btn-default">放弃操作</button>
+            </div>
+{#            <div class="col-xs-2">#}
+{#                <h6 style="color: red">{{ cansel_message }}</h6>#}
+{#            </div>#}
+        </div>
+    </form>
+    {% endif %}
+
+</div>
+
+</body>
+</html>
