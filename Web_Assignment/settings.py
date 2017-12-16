@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 # 作者：oldpan
 # 使用数据库： mysql
-# 版本：V1.2
+# 版本：1.2
 
 import os
 
